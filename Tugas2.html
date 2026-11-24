@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Grayscale RGB Lab</title>
+
+    <style>
+
+        :root {
+            --ink: #18212f;
+            --muted: #687386;
+            --line: #dce2ea;
+            --paper: #f5f7fb;
+            --white: #ffffff;
+            --red: #e55353;
+            --green: #27956f;
+            --blue: #3679cf;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--paper);
+            color: var(--ink);
+            font-family: Georgia, "Times New Roman", serif;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .app-shell {
+            margin: 0 auto;
+            max-width: 1180px;
+            padding: 34px 22px 52px;
+        }
+
+        .eyebrow {
+            color: #b34b38;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin: 0 0 10px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: clamp(32px, 5vw, 58px);
+            font-weight: normal;
+            letter-spacing: 0;
+            line-height: 0.98;
+            margin: 0;
+            max-width: 700px;
+        }
+
+        .intro {
+            color: var(--muted);
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 18px 0 28px;
+            max-width: 650px;
+        }
+
+        .workspace {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            box-shadow: 0 16px 40px rgba(24, 33, 47, 0.08);
+            display: grid;
+            gap: 28px;
+            grid-template-columns: minmax(260px, 0.85fr) minmax(0, 1.4fr);
+            padding: 24px;
+        }
+
+        .source-panel {
+            border-right: 1px solid var(--line);
+            padding-right: 28px;
+        }
+
+        .section-label {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1.4px;
+            margin: 0 0 14px;
+            text-transform: uppercase;
+        }
+
+        .canvas-frame {
+            align-items: center;
+            background: #e9edf2;
+            border: 1px solid var(--line);
+            display: flex;
+            justify-content: center;
+            min-height: 280px;
+            overflow: hidden;
+            padding: 12px;
+        }
+
+        canvas {
+            border: 0;
+            display: block;
+            max-height: 420px;
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .upload-box {
+            background: #fbf8f2;
+            border: 1px dashed #c8bba5;
+            margin-top: 16px;
+            padding: 15px;
+        }
+
+        .upload-box label {
+            display: block;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 9px;
+        }
+
+        input[type="file"] {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            max-width: 100%;
+        }
+
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        button {
+            background: var(--ink);
+            border: 0;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 10px 13px;
+            transition: transform 160ms ease, opacity 160ms ease;
+        }
+
+        button:hover {
+            opacity: 0.82;
+            transform: translateY(-1px);
+        }
+
+        button:focus-visible {
+            outline: 3px solid #f1b452;
+            outline-offset: 2px;
+        }
+
+        .primary-action {
+            background: #b34b38;
+        }
+
+        .secondary-action {
+            background: #e8edf3;
+            color: var(--ink);
+        }
+
+        .status {
+            color: var(--muted);
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 16px 0 0;
+        }
+
+        .results-panel {
+            min-width: 0;
+        }
+
+        .results-heading {
+            align-items: end;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .results-heading h2 {
+            font-size: 25px;
+            font-weight: normal;
+            margin: 0;
+        }
+
+        .results-heading p {
+            color: var(--muted);
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 0;
+            text-align: right;
+        }
+
+        .channel-container {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .channel-block {
+            background: #f8fafc;
+            border: 1px solid var(--line);
+            border-top: 4px solid var(--ink);
+            flex: 1 1 150px;
+            min-width: 130px;
+            overflow: hidden;
+            padding: 10px;
+        }
+
+        .channel-block:nth-child(1) { border-top-color: var(--red); }
+        .channel-block:nth-child(2) { border-top-color: var(--green); }
+        .channel-block:nth-child(3) { border-top-color: var(--blue); }
+
+        .channel-block canvas {
+            background: #e9edf2;
+            height: auto;
+            width: 100%;
+        }
+
+        .channel-caption {
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            font-weight: bold;
+            margin: 10px 0 2px;
+        }
+
+        .channel-note {
+            color: var(--muted);
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            margin: 0;
+        }
+
+        @media (max-width: 780px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .source-panel {
+                border-bottom: 1px solid var(--line);
+                border-right: 0;
+                padding-bottom: 24px;
+                padding-right: 0;
+            }
+
+            .results-heading {
+                align-items: start;
+                flex-direction: column;
+            }
+
+            .results-heading p {
+                text-align: left;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <main class="app-shell">
+        <p class="eyebrow">Praktikum Pengolahan Citra</p>
+        <h1>Melihat tiga channel di dalam satu citra abu-abu.</h1>
+        <p class="intro">Unggah gambar grayscale untuk melihat bagaimana nilai piksel yang sama direkam pada channel Red, Green, dan Blue.</p>
+
+        <section class="workspace">
+            <div class="source-panel">
+                <p class="section-label">01 / Citra sumber</p>
+                <div class="canvas-frame">
+                    <canvas id="gambar" width="300" height="300"></canvas>
+                </div>
+                <div class="upload-box">
+                    <label for="file1">Pilih file gambar</label>
+                    <input type="file" id="file1" accept=".jpg,.jpeg,.png,.bmp">
+                </div>
+                <div class="action-row">
+                    <button id="grayscale-button" class="primary-action" type="button">Ubah ke Grayscale</button>
+                    <button id="rgb-button" class="secondary-action" type="button">Tampilkan RGB</button>
+                </div>
+                <p class="status" id="status">Belum ada citra yang dipilih.</p>
+            </div>
+
+            <div class="results-panel">
+                <div class="results-heading">
+                    <div>
+                        <p class="section-label">02 / Hasil pemisahan</p>
+                        <h2>Channel warna RGB</h2>
+                    </div>
+                    <p id="image-info">Menunggu citra</p>
+                </div>
+                <div id="channels" class="channel-container"></div>
+            </div>
+        </section>
+
+        <div class="action-row">
+            <button class="secondary-action" onclick="showCMYKChannels('gambar')">Lihat CMYK</button>
+            <button class="secondary-action" onclick="showHSVChannels('gambar')">Lihat HSV</button>
+            <button class="secondary-action" onclick="showYIQChannels('gambar')">Lihat YIQ</button>
+        </div>
+    </main>
+
+
+    <script>
+
+        let originalImage = null;
+
+
+        // ==========================================
+        // LOAD IMAGE
+        // ==========================================
+
+        function loadImage(fileInput, canvasId) {
+
+            const file = fileInput.files[0];
+
+            if (!file) return;
+
+
+            const canvas = document.getElementById(canvasId);
+
+            const ctx = canvas.getContext("2d");
+
+            const img = new Image();
+
+
+            img.onload = function () {
+
+                canvas.width = img.width;
+
+                canvas.height = img.height;
+
+                ctx.drawImage(img, 0, 0);
+
+                originalImage = img;
+
+                document.getElementById("image-info").textContent =
+                    img.width + " x " + img.height + " px";
+
+                document.getElementById("status").textContent =
+                    "Citra berhasil dimuat. Channel RGB ditampilkan di bawah.";
+
+                showRGBChannels(canvasId);
+
+            };
+
+
+            img.src = URL.createObjectURL(file);
+
+        }
+
+
+        // ==========================================
+        // CREATE CHANNEL CANVAS
+        // ==========================================
+
+        function createChannelCanvas(label, width, height, imgData) {
+
+            const container = document.getElementById("channels");
+
+            const block = document.createElement("div");
+
+            block.className = "channel-block";
+
+
+            const canvas = document.createElement("canvas");
+
+            canvas.width = width;
+
+            canvas.height = height;
+
+
+            const ctx = canvas.getContext("2d");
+
+            ctx.putImageData(imgData, 0, 0);
+
+
+            const caption = document.createElement("p");
+
+            caption.className = "channel-caption";
+            caption.textContent = label;
+
+            const note = document.createElement("p");
+
+            note.className = "channel-note";
+            note.textContent = "Nilai intensitas channel";
+
+
+            block.appendChild(canvas);
+
+            block.appendChild(caption);
+
+            block.appendChild(note);
+
+            container.appendChild(block);
+
+        }
+
+
+        // ==========================================
+        // CLEAR CHANNELS
+        // ==========================================
+
+        function clearChannels() {
+
+            document.getElementById("channels").innerHTML = "";
+
+        }
+
+
+        // ==========================================
+        // CONVERT TO GRAYSCALE
+        // ==========================================
+
+        function convertToGrayscale(canvasId) {
+
+            const canvas = document.getElementById(canvasId);
+
+            const ctx = canvas.getContext("2d");
+
+            const imgData = ctx.getImageData(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+
+            for (let i = 0; i < imgData.data.length; i += 4) {
+
+                const gray = Math.round(
+                    0.299 * imgData.data[i] +
+                    0.587 * imgData.data[i + 1] +
+                    0.114 * imgData.data[i + 2]
+                );
+
+                imgData.data[i] = gray;
+                imgData.data[i + 1] = gray;
+                imgData.data[i + 2] = gray;
+
+            }
+
+
+            ctx.putImageData(imgData, 0, 0);
+
+            document.getElementById("status").textContent =
+                "Citra telah diubah menjadi grayscale. Nilai R, G, dan B setiap piksel sama.";
+
+            showRGBChannels(canvasId);
+
+        }
+
+
+        // ==========================================
+        // RGB CHANNELS
+        // ==========================================
+
+        function showRGBChannels(canvasId) {
+
+            clearChannels();
+
+
+            const canvas = document.getElementById(canvasId);
+
+            if (!canvas || !originalImage || canvas.width === 0 || canvas.height === 0) {
+
+                document.getElementById("status").textContent =
+                    "Pilih gambar terlebih dahulu sebelum menampilkan channel RGB.";
+
+                return;
+
+            }
+
+            const ctx = canvas.getContext("2d");
+
+            const imgData = ctx.getImageData(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+
+            let R = new ImageData(
+                canvas.width,
+                canvas.height
+            );
+
+            let G = new ImageData(
+                canvas.width,
+                canvas.height
+            );
+
+            let B = new ImageData(
+                canvas.width,
+                canvas.height
+            );
+
+
+            for (
+                let i = 0;
+                i < imgData.data.length;
+                i += 4
+            ) {
+
+                let r = imgData.data[i];
+
+                let g = imgData.data[i + 1];
+
+                let b = imgData.data[i + 2];
+
+                let a = imgData.data[i + 3];
+
+
+                // Red
+
+                R.data[i] = r;
+
+                R.data[i + 1] = 0;
+
+                R.data[i + 2] = 0;
+
+                R.data[i + 3] = a;
+
+
+                // Green
+
+                G.data[i] = 0;
+
+                G.data[i + 1] = g;
+
+                G.data[i + 2] = 0;
+
+                G.data[i + 3] = a;
+
+
+                // Blue
+
+                B.data[i] = 0;
+
+                B.data[i + 1] = 0;
+
+                B.data[i + 2] = b;
+
+                B.data[i + 3] = a;
+
+            }
+
+
+            createChannelCanvas(
+                "Red",
+                canvas.width,
+                canvas.height,
+                R
+            );
+
+
+            createChannelCanvas(
+                "Green",
+                canvas.width,
+                canvas.height,
+                G
+            );
+
+
+            createChannelCanvas(
+                "Blue",
+                canvas.width,
+                canvas.height,
+                B
+            );
+
+            document.getElementById("status").textContent =
+                "Channel RGB berhasil ditampilkan. Pada citra grayscale, nilai R, G, dan B sama.";
+
+        }
+
+
+        // ==========================================
+        // CMYK CHANNELS
+        // ==========================================
+
+        function showCMYKChannels(canvasId) {
+
+            clearChannels();
+
+
+            const canvas = document.getElementById(canvasId);
+
+            const ctx = canvas.getContext("2d");
+
+            const imgData = ctx.getImageData(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+
+            let C = new ImageData(
+                canvas.width,
+                canvas.height
+            );
+
+            let M = new ImageData(
+                canvas.width,
+                canvas.height
+            );
+
+            let Y = new ImageData(
+                canvas.width,
+                canvas.height
+            );
+
+            let K = new ImageData(
+                canvas.width,
+                canvas.height
+            );
+
+
+            for (
+                let i = 0;
+                i < imgData.data.length;
+                i += 4
+            ) {
+
+                let r = imgData.data[i] / 255;
+
+                let g = imgData.data[i + 1] / 255;
+
+                let b = imgData.data[i + 2] / 255;
+
+                let a = imgData.data[i + 3];
+
+
+                let k = 1 - Math.max(r, g, b);
+
+                let c = (1 - r - k) / (1 - k || 1);
+
+                let m = (1 - g - k) / (1 - k || 1);
+
+                let y = (1 - b - k) / (1 - k || 1);
+
+
+                // Cyan (0, c, c)
+
+                C.data[i] = 0;
+
+                C.data[i + 1] = c * 255;
+
+                C.data[i + 2] = c * 255;
+
+                C.data[i + 3] = a;
+
+
+                // Magenta (m, 0, m)
+
+                M.data[i] = m * 255;
+
+                M.data[i + 1] = 0;
+
+                M.data[i + 2] = m * 255;
+
+                M.data[i + 3] = a;
+
+
+                // Yellow (y, y, 0)
+
+                Y.data[i] = y * 255;
+
+                Y.data[i + 1] = y * 255;
+
+                Y.data[i + 2] = 0;
+
+                Y.data[i + 3] = a;
+
+
+                // Black grayscale
+
+                K.data[i] = k * 255;
+
+                K.data[i + 1] = k * 255;
+
+                K.data[i + 2] = k * 255;
+
+                K.data[i + 3] = a;
+
+            }
+
+
+            createChannelCanvas(
+                "Cyan",
+                canvas.width,
+                canvas.height,
+                C
+            );
+
+
+            createChannelCanvas(
+                "Magenta",
+                canvas.width,
+                canvas.height,
+                M
+            );
+
+
+            createChannelCanvas(
+                "Yellow",
+                canvas.width,
+                canvas.height,
+                Y
+            );
+
+
+            createChannelCanvas(
+                "Black",
+                canvas.width,
+                canvas.height,
+                K
+            );
+
+        }
+
+
+        // ==========================================
+        // HSV CHANNELS
+        // ==========================================
+
+        function showHSVChannels(canvasId) {
+
+            clearChannels();
+
+
+            const canvas = document.getElementById(canvasId);
+
+            const ctx = canvas.getContext("2d");
+
+            const imgData = ctx.getImageData(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+
+            let H = new ImageData(
+                canvas.width,
+                canvas.height
+            );
+
+            let S = new ImageData(
+                canvas.width,
+                canvas.height
+            );
+
+            let V = new ImageData(
+                canvas.width,
+                canvas.height
+            );
+
+
+            for (
+                let i = 0;
+                i < imgData.data.length;
+                i += 4
+            ) {
+
+                let r = imgData.data[i] / 255;
+
+                let g = imgData.data[i + 1] / 255;
+
+                let b = imgData.data[i + 2] / 255;
+
+                let a = imgData.data[i + 3];
+
+
+                let max = Math.max(r, g, b);
+
+                let min = Math.min(r, g, b);
+
+                let d = max - min;
+
+
+                let h = 0;
+
+
+                if (d !== 0) {
+
+                    if (max === r)
+
+                        h = ((g - b) / d) % 6;
+
+                    else if (max === g)
+
+                        h = (b - r) / d + 2;
+
+                    else
+
+                        h = (r - g) / d + 4;
+
+
+                    h *= 60;
+
+
+                    if (h < 0)
+
+                        h += 360;
+
+                }
+
+
+                let s = max === 0 ? 0 : d / max;
+
+                let v = max;
+
+
+                // Hue to RGB approximation
+
+                let hueColor = hsvToRgb(
+                    h,
+                    1,
+                    1
+                );
+
+
+                H.data[i] = hueColor[0];
+
+                H.data[i + 1] = hueColor[1];
+
+                H.data[i + 2] = hueColor[2];
+
+                H.data[i + 3] = a;
+
+
+                // Saturation : white to pure color (red)
+
+                S.data[i] = s * 255;
+
+                S.data[i + 1] = 0;
+
+                S.data[i + 2] = 0;
+
+                S.data[i + 3] = a;
+
+
+                // Value → grayscale
+
+                V.data[i] = v * 255;
+
+                V.data[i + 1] = v * 255;
+
+                V.data[i + 2] = v * 255;
+
+                V.data[i + 3] = a;
+
+            }
+
+
+            createChannelCanvas(
+                "Hue",
+                canvas.width,
+                canvas.height,
+                H
+            );
+
+
+            createChannelCanvas(
+                "Saturation",
+                canvas.width,
+                canvas.height,
+                S
+            );
+
+
+            createChannelCanvas(
+                "Value",
+                canvas.width,
+                canvas.height,
+                V
+            );
+
+        }
+
+
+        // ==========================================
+        // HSV TO RGB
+        // ==========================================
+
+        function hsvToRgb(h, s, v) {
+
+            let c = v * s;
+
+            let x = c * (
+                1 -
+                Math.abs(
+                    (h / 60) % 2 - 1
+                )
+            );
+
+            let m = v - c;
+
+            let r, g, b;
+
+
+            if (h < 60)
+
+                [r, g, b] = [c, x, 0];
+
+            else if (h < 120)
+
+                [r, g, b] = [x, c, 0];
+
+            else if (h < 180)
+
+                [r, g, b] = [0, c, x];
+
+            else if (h < 240)
+
+                [r, g, b] = [0, x, c];
+
+            else if (h < 300)
+
+                [r, g, b] = [x, 0, c];
+
+            else
+
+                [r, g, b] = [c, 0, x];
+
+
+            return [
+                (r + m) * 255,
+                (g + m) * 255,
+                (b + m) * 255
+            ];
+
+        }
+
+
+        // ==========================================
+        // YIQ CHANNELS
+        // ==========================================
+
+        function showYIQChannels(canvasId) {
+
+            clearChannels();
+
+
+            const canvas = document.getElementById(canvasId);
+
+            const ctx = canvas.getContext("2d");
+
+            const imgData = ctx.getImageData(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+
+            let Yc = new ImageData(
+                canvas.width,
+                canvas.height
+            );
+
+            let I = new ImageData(
+                canvas.width,
+                canvas.height
+            );
+
+            let Q = new ImageData(
+                canvas.width,
+                canvas.height
+            );
+
+
+            for (
+                let i = 0;
+                i < imgData.data.length;
+                i += 4
+            ) {
+
+                let r = imgData.data[i] / 255;
+
+                let g = imgData.data[i + 1] / 255;
+
+                let b = imgData.data[i + 2] / 255;
+
+                let a = imgData.data[i + 3];
+
+
+                let y =
+                    0.299 * r +
+                    0.587 * g +
+                    0.114 * b;
+
+
+                let Ii =
+                    0.596 * r -
+                    0.274 * g -
+                    0.322 * b;
+
+
+                let Qq =
+                    0.211 * r -
+                    0.523 * g +
+                    0.312 * b;
+
+
+                // Y (grayscale luminance)
+
+                Yc.data[i] = y * 255;
+
+                Yc.data[i + 1] = y * 255;
+
+                Yc.data[i + 2] = y * 255;
+
+                Yc.data[i + 3] = a;
+
+
+                // I channel → merah
+
+                I.data[i] = (Ii + 0.5) * 255;
+
+                I.data[i + 1] = 0;
+
+                I.data[i + 2] = 0;
+
+                I.data[i + 3] = a;
+
+
+                // Q channel → biru
+
+                Q.data[i] = 0;
+
+                Q.data[i + 1] = 0;
+
+                Q.data[i + 2] = (Qq + 0.5) * 255;
+
+                Q.data[i + 3] = a;
+
+            }
+
+
+            createChannelCanvas(
+                "Y (Luminance)",
+                canvas.width,
+                canvas.height,
+                Yc
+            );
+
+
+            createChannelCanvas(
+                "I (In-phase)",
+                canvas.width,
+                canvas.height,
+                I
+            );
+
+
+            createChannelCanvas(
+                "Q (Quadrature)",
+                canvas.width,
+                canvas.height,
+                Q
+            );
+
+        }
+
+
+        // ==========================================
+        // FILE INPUT
+        // ==========================================
+
+        document
+            .getElementById("file1")
+            .addEventListener(
+                "change",
+                function () {
+
+                    loadImage(
+                        this,
+                        "gambar"
+                    );
+
+                    clearChannels();
+
+                }
+            );
+
+        document
+            .getElementById("rgb-button")
+            .addEventListener(
+                "click",
+                function () {
+                    showRGBChannels("gambar");
+                }
+            );
+
+        document
+            .getElementById("grayscale-button")
+            .addEventListener(
+                "click",
+                function () {
+                    convertToGrayscale("gambar");
+                }
+            );
+
+    </script>
+
+</body>
+
+</html>
